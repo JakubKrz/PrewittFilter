@@ -29,8 +29,9 @@ namespace WindowsFormsApp2
                     {
                         // Wczytaj obraz z pliku
                         Image image = Image.FromFile(openFileDialog.FileName);
-
+                        
                         // Wyświetl obraz w PictureBox
+                        pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
                         pictureBox1.Image = image;
                     }
                     catch (Exception ex)
