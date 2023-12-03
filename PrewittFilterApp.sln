@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33801.468
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApp2", "WindowsFormsApp2\WindowsFormsApp2.csproj", "{B92FDE16-72C4-4B39-A4FC-8F665FB5FC78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrewittFilterApp", "WindowsFormsApp2\PrewittFilterApp.csproj", "{B92FDE16-72C4-4B39-A4FC-8F665FB5FC78}"
 	ProjectSection(ProjectDependencies) = postProject
 		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2} = {70F4304D-7ED3-47C2-99A9-FFD17738EFC2}
 		{881E2D5B-D614-4BEC-A9E4-860E6FABF903} = {881E2D5B-D614-4BEC-A9E4-860E6FABF903}
