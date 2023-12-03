@@ -1,1 +1,1 @@
-# WindowsFormsApp2
+# Prewitt filter
