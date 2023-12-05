@@ -18,9 +18,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 
 }
-extern "C" __declspec(dllexport) int ExampleFunction(int a, int b)
+extern "C" __declspec(dllexport) void ExampleFunction()
 {
-    return a+b;
     // Implementacja funkcji
 }
 

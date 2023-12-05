@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{B92FDE16-72C4-4B39-A4FC-8F665FB5FC78}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>PrewittFilterApp</RootNamespace>
+    <RootNamespace>WindowsFormsApp2</RootNamespace>
     <AssemblyName>PrewittFilterApp</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -71,7 +71,6 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
