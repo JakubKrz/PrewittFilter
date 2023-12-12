@@ -11,7 +11,7 @@ namespace WindowsFormsApp2
     public partial class Form1 : Form
     {
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
-        public static extern void ExampleFunction(byte[] byteArray, int length);
+        public static extern void ExampleFunction(byte[] byteArray, int width, int height);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
         public static extern int Myproc();
 
@@ -80,12 +80,13 @@ namespace WindowsFormsApp2
             byte[] pixelData = new byte[image.Length - 54];
             Array.Copy(image, 54, pixelData, 0, pixelData.Length);
 
-            ExampleFunction(pixelData, pixelData.Length);
+            ExampleFunction(pixelData, imageBitmap.Width,imageBitmap.Height);
 
             byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
 
             Bitmap modifiedBitmap = ConstructBitmap(modifiedImageWithHeader, pictureBox1.Image.Width, pictureBox1.Image.Height);
             // Wyświetlamy zmodyfikowany obraz
+            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox2.Image = modifiedBitmap;
         }
