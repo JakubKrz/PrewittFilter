@@ -41,15 +41,8 @@ namespace WindowsFormsApp2
                     try
                     {
                         imagePath = openFileDialog.FileName;
-                        // Wczytaj obraz z pliku
                         Image image = Image.FromFile(openFileDialog.FileName);
 
-                        using (Bitmap bmp = new Bitmap(openFileDialog.FileName))
-                        {
-                            int bitDepth = Image.GetPixelFormatSize(bmp.PixelFormat);
-                            //MessageBox.Show("Plik BMP ma " + bitDepth + " bitów na piksel. " + bmp.Width + " wysokosc " + bmp.Height + " " + bmp.PixelFormat.ToString(), "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        // Wyświetl obraz w PictureBox
                         pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
                         pictureBox1.Image = image;
 
@@ -76,7 +69,7 @@ namespace WindowsFormsApp2
 
 
 
-            // Pomijaj nagłówek (pierwsze 54 bajty)
+
             byte[] pixelData = new byte[image.Length - 54];
             Array.Copy(image, 54, pixelData, 0, pixelData.Length);
 
@@ -85,7 +78,7 @@ namespace WindowsFormsApp2
             byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
 
             Bitmap modifiedBitmap = ConstructBitmap(modifiedImageWithHeader, pictureBox1.Image.Width, pictureBox1.Image.Height);
-            // Wyświetlamy zmodyfikowany obraz
+
             modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox2.Image = modifiedBitmap;
@@ -95,22 +88,21 @@ namespace WindowsFormsApp2
 
         private Bitmap ConstructBitmap(byte[] pixelData, int width, int height)
         {
-            // Konstruujemy nowy obraz na podstawie zmodyfikowanych danych pikseli
+
             Bitmap modifiedBitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            // Lock the bitmap's bits.
             Rectangle rect = new Rectangle(0, 0, modifiedBitmap.Width, modifiedBitmap.Height);
             System.Drawing.Imaging.BitmapData bmpData =
                 modifiedBitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
                 modifiedBitmap.PixelFormat);
 
-            // Get the address of the first line.
+
             IntPtr ptr = bmpData.Scan0;
 
-            // Copy the modified RGB values back to the bitmap
+
             System.Runtime.InteropServices.Marshal.Copy(pixelData, 54, ptr, pixelData.Length - 54);
 
-            // Unlock the bits.
+
             modifiedBitmap.UnlockBits(bmpData);
 
             return modifiedBitmap;
@@ -126,19 +118,16 @@ namespace WindowsFormsApp2
 
         private byte[] AddBmpHeader(byte[] pixelData, int width, int height)
         {
-            // Oblicz rozmiar obrazu
+
             int imageSize = pixelData.Length;
 
-            // Rozmiar nagłówka BMP
+
             int headerSize = 54;
 
-            // Rozmiar pliku = rozmiar nagłówka + rozmiar danych pikseli
             int fileSize = headerSize + imageSize;
 
-            // Tworzymy bufor na nagłówek
             byte[] header = new byte[headerSize];
 
-            // "BM" to standardowy sygnatury nagłówka BMP
             header[0] = (byte)'B';
             header[1] = (byte)'M';
 

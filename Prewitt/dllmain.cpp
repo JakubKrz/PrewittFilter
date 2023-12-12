@@ -20,27 +20,25 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 }
 extern "C" __declspec(dllexport) void ExampleFunction(unsigned char* byteArray, int width, int height)
 {
-    // Filtr Prewitta dla kierunku poziomego
+
     int horizontalFilter[3][3] = {
         {-1, 0, 1},
         {-1, 0, 1},
         {-1, 0, 1}
     };
 
-    // Filtr Prewitta dla kierunku pionowego
     int verticalFilter[3][3] = {
         {-1, -1, -1},
         { 0,  0,  0},
         { 1,  1,  1}
     };
 
-    // Utwórz tymczasow¹ tablicê do przechowywania wyników
     unsigned char* resultArray = new unsigned char[width * height * 3];
 
     // Iteruj przez piksele (z pominiêciem ramki 1-pikselowej)
     for (int y = 1; y < height - 1; ++y) {
         for (int x = 1; x < width - 1; ++x) {
-            for (int c = 0; c < 3; ++c) { // Iteruj przez sk³adowe koloru (R, G, B)
+            for (int c = 0; c < 3; ++c) { //zmienic na 1 jesli ma byc szare i odkomentowac resultarray
                 int horizontalSum = 0;
                 int verticalSum = 0;
 
@@ -51,17 +49,18 @@ extern "C" __declspec(dllexport) void ExampleFunction(unsigned char* byteArray, 
                         verticalSum += byteArray[((y + i) * width + (x + j)) * 3 + c] * verticalFilter[i + 1][j + 1];
                     }
                 }
-
+                int gradient = static_cast<int>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
                 // Przypisz wynik do nowego obrazu
                 resultArray[(y * width + x) * 3 + c] = static_cast<unsigned char>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
+         /*       resultArray[(y * width + x) * 3 + 1] = static_cast<unsigned char>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
+                resultArray[(y * width + x) * 3 + 2] = static_cast<unsigned char>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));*/
             }
         }
     }
 
-    // Skopiuj wyniki z tablicy tymczasowej z powrotem do oryginalnej tablicy
+
     std::copy(resultArray, resultArray + width * height * 3, byteArray);
 
-    // Zwolnij pamiêæ po tablicy tymczasowej
     delete[] resultArray;
 }
 
