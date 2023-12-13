@@ -14,7 +14,7 @@ namespace WindowsFormsApp2
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
         public static extern void ExampleFunction(byte[] byteArray, int width, int height);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
-        public static extern byte Myproc(byte[] byteArray);
+        public static extern byte Myproc(byte[] byteArray, int width, int height);
 
         private string imagePath;
         public Form1()
@@ -76,12 +76,13 @@ namespace WindowsFormsApp2
 
             //Stopwatch stopwatch = Stopwatch.StartNew(); 
 
+            //Przekazywanie w formacie bgr
             //ExampleFunction(pixelData, imageBitmap.Width,imageBitmap.Height);
 
 
             //stopwatch.Stop();
             //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString(), "aha");
-            MessageBox.Show(Myproc(pixelData).ToString(), "pierwsza wartosc tablicy bajtow");
+            Myproc(pixelData, imageBitmap.Width, imageBitmap.Height);
             byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
 
             Bitmap modifiedBitmap = ConstructBitmap(modifiedImageWithHeader, pictureBox1.Image.Width, pictureBox1.Image.Height);
