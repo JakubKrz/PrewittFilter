@@ -1,8 +1,8 @@
 .CODE
 Myproc PROC
 
-	mov eax, 12
-	ret
+    movzx eax, byte ptr [rcx]
+    ret
 
 Myproc ENDP
 

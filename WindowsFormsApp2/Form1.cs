@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -13,7 +14,7 @@ namespace WindowsFormsApp2
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
         public static extern void ExampleFunction(byte[] byteArray, int width, int height);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
-        public static extern int Myproc();
+        public static extern byte Myproc(byte[] byteArray);
 
         private string imagePath;
         public Form1()
@@ -73,8 +74,14 @@ namespace WindowsFormsApp2
             byte[] pixelData = new byte[image.Length - 54];
             Array.Copy(image, 54, pixelData, 0, pixelData.Length);
 
-            ExampleFunction(pixelData, imageBitmap.Width,imageBitmap.Height);
+            //Stopwatch stopwatch = Stopwatch.StartNew(); 
 
+            //ExampleFunction(pixelData, imageBitmap.Width,imageBitmap.Height);
+
+
+            //stopwatch.Stop();
+            //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString(), "aha");
+            MessageBox.Show(Myproc(pixelData).ToString(), "pierwsza wartosc tablicy bajtow");
             byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
 
             Bitmap modifiedBitmap = ConstructBitmap(modifiedImageWithHeader, pictureBox1.Image.Width, pictureBox1.Image.Height);
