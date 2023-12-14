@@ -12,9 +12,9 @@ namespace WindowsFormsApp2
     public partial class Form1 : Form
     {
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
-        public static extern void ExampleFunction(byte[] byteArray, int width, int height);
+        public static extern void ExampleFunction(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
-        public static extern byte Myproc(byte[] byteArray, int width, int height);
+        public static extern byte Myproc(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
 
         private string imagePath;
         public Form1()
@@ -72,17 +72,19 @@ namespace WindowsFormsApp2
 
 
             byte[] pixelData = new byte[image.Length - 54];
+            byte[] pixelDataOriginal = new byte[image.Length - 54];
             Array.Copy(image, 54, pixelData, 0, pixelData.Length);
+            Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);
 
             //Stopwatch stopwatch = Stopwatch.StartNew(); 
 
             //Przekazywanie w formacie bgr
-            //ExampleFunction(pixelData, imageBitmap.Width,imageBitmap.Height);
-
+            //ExampleFunction(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
+            Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height);
 
             //stopwatch.Stop();
             //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString(), "aha");
-            Myproc(pixelData, imageBitmap.Width, imageBitmap.Height);
+
             byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
 
             Bitmap modifiedBitmap = ConstructBitmap(modifiedImageWithHeader, pictureBox1.Image.Width, pictureBox1.Image.Height);
