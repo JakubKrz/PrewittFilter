@@ -80,7 +80,7 @@ namespace WindowsFormsApp2
             
             //Przekazywanie w formacie bgr
             //ExampleFunction(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
-            Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height);
+            Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
 
             //stopwatch.Stop();
             //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString(), "aha");

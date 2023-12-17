@@ -32,7 +32,7 @@ outer_loop:
 inner_loop:
     ;Tutaj ma byc docelowo filtr prwitta
     
-    xorps xmm0, xmm0
+    xorps xmm0, xmm0 
     xorps xmm1, xmm1
 
     ;dodawnie 1 wartosc z filtru x (lewy gorny rog)
@@ -127,7 +127,7 @@ inner_loop:
     mov r14, r11 
     add r14, r8
     sub r14, 3
-    add al, byte PTR[rsi + r14]
+    add al, byte PTR[rsi + r14] ;to jest zbedne mozna po prostu zaladowac
     pinsrd xmm0, eax, 1
     subps xmm1, xmm0
 
@@ -155,7 +155,8 @@ inner_loop:
     ;caly rejestr ^2
     ;wyciagnac  dodac zrobic pierwiastek i zapisac
     ;Dodac sprawdzenie czy wartosc nie przekrqacz 255???
-
+    ;mozna to robic w mm zamiast xmm
+    ;intrukcja phadd?
     ;tu dodac wartosc gradientx^2 + gradinty^2
     ;na razei tylko grandient x
     pmulld xmm1, xmm1   ; gradient * gradient
