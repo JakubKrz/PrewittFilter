@@ -31,7 +31,90 @@ outer_loop:
 
 inner_loop:
     ;Tutaj ma byc docelowo filtr prwitta
-    mov   byte PTR[rdi + r11 + 2], 255      ; ustawianie Red na 255
+    
+        xorps xmm0, xmm0
+    xorps xmm1, xmm1
+
+    ;dodawnie 1 wartosc z filtru x (lewy gorny rog)
+    xor rax, rax
+    mov r14, r11 
+    sub r14, r8
+    sub r14, 3
+    add al, byte PTR[rsi + r14]
+    pinsrd xmm0, eax, 0
+    addps xmm1, xmm0
+
+    ;dodawnie 2 wartosc z filtru x (lewy srodkowy)
+    xorps xmm0, xmm0
+    xor rax, rax
+    mov r14, r11
+    sub r14, 3
+    add al, byte PTR[rsi + r14]
+    pinsrd xmm0, eax, 0
+    addps xmm1, xmm0
+
+    ;dodawnie 3 wartosc z filtru x (lewy dolny rog)
+    xorps xmm0, xmm0
+    xor rax, rax
+    mov r14, r11
+    add r14, r8
+    sub r14, 3
+    add al, byte PTR[rsi + r14]
+    pinsrd xmm0, eax, 0
+    addps xmm1, xmm0
+
+    ;odjecie 4 wartosc z filtru x (prawy gorny rog)
+    xorps xmm0, xmm0
+    xor rax, rax
+    mov r14, r11 
+    sub r14, r8
+    add r14, 3
+    add al, byte PTR[rsi + r14]
+    pinsrd xmm0, eax, 0
+    subps xmm1, xmm0
+
+    ;odjecie 5 wartosc z filtru x (prawy srodkowy)
+    xorps xmm0, xmm0
+    xor rax, rax
+    mov r14, r11
+    add r14, 3
+    add al, byte PTR[rsi + r14]
+    pinsrd xmm0, eax, 0
+    subps xmm1, xmm0
+
+    ;odjecie 6 wartosc z filtru x (prawy dolny rog)
+    xorps xmm0, xmm0
+    xor rax, rax
+    mov r14, r11
+    add r14, r8
+    add r14, 3
+    add al, byte PTR[rsi + r14]
+    pinsrd xmm0, eax, 0
+    subps xmm1, xmm0
+    
+    ;Trzeba dodac filt w kierunku y i 2 pixel naraz zeby 2 na raz przetwarzac i wykorzystac caly rejestr xmm
+    ;gradX (1) - gradY (1) - gradX (2) - gradY (2)
+    ;caly rejestr ^2
+    ;wyciagnac  dodac zrobic pierwiastek i zapisac
+    ;Dodac sprawdzenie czy wartosc nie przekrqacz 255???
+
+    ;tu dodac wartosc gradientx^2 + gradinty^2
+    ;na razei tylko grandient x
+    pmulld xmm1, xmm1   ; gradient * gradient
+    pextrd	eax, xmm1, 0    ; wyciagniecie wartosci do eax
+    ; tu powinno sie to dodac
+    
+    xorps xmm3, xmm3
+    cvtsi2sd    xmm3, eax ; z eax do smm3 zeby zrobi pierwiastek
+    sqrtsd xmm3, xmm3   ;pierwistek z gradienta
+    
+    xor rax, rax
+    cvtsd2si   eax, xmm3
+
+
+    mov byte PTR[rdi + r11 + 2], al ; red
+    mov byte PTR[rdi + r11 + 1], al ; green
+    mov byte PTR[rdi + r11 ], al  ;blue
 
     ; Inkrementacja iteratora kolumn (j)
     add r11, 3
