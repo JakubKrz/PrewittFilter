@@ -77,7 +77,7 @@ namespace WindowsFormsApp2
             Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);
 
             //Stopwatch stopwatch = Stopwatch.StartNew(); 
-
+            
             //Przekazywanie w formacie bgr
             //ExampleFunction(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
             Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height);
@@ -89,7 +89,7 @@ namespace WindowsFormsApp2
 
             Bitmap modifiedBitmap = ConstructBitmap(modifiedImageWithHeader, pictureBox1.Image.Width, pictureBox1.Image.Height);
 
-            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY); //pbrot bo zdjecie z jakiegos powodu wychodzi do gory nogami
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox2.Image = modifiedBitmap;
         }
