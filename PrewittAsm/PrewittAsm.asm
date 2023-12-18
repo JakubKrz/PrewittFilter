@@ -159,12 +159,12 @@ inner_loop:
     movd eax, xmm1 ; przeniesienie do eax 
 
 
-    mov byte PTR[rdi + r11 + 2], al ; red
-    mov byte PTR[rdi + r11 + 1], al ; green
+    ;mov byte PTR[rdi + r11 + 2], al ; red
+    ;mov byte PTR[rdi + r11 + 1], al ; green 
     mov byte PTR[rdi + r11 ], al  ;blue
 
     ; Inkrementacja iteratora kolumn (j)
-    add r11, 3
+    add r11, 1  ;zmienic na 3 jesli tylko 1 kolor
     cmp     r11, r12        ; sprawdzanie czy koniec wiersza (przedostatnia kolumna w wierszu)
     jl      inner_loop     ; 
 

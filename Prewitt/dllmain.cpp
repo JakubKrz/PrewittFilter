@@ -35,7 +35,7 @@ extern "C" __declspec(dllexport) void ExampleFunction(unsigned char* resultArray
 
     for (int y = 1; y < height - 1; ++y) {
         for (int x = 1; x < width - 1; ++x) {
-            for (int c = 0; c < 1; ++c) { //zmienic na 1 jesli ma byc szare i odkomentowac resultarray
+            for (int c = 0; c < 3; ++c) { 
                 int horizontalSum = 0;
                 int verticalSum = 0;
 
@@ -48,8 +48,8 @@ extern "C" __declspec(dllexport) void ExampleFunction(unsigned char* resultArray
                 int gradient = static_cast<int>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
 
                 resultArray[(y * width + x) * 3 + c] = static_cast<unsigned char>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
-                resultArray[(y * width + x) * 3 + 1] = static_cast<unsigned char>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
-                resultArray[(y * width + x) * 3 + 2] = static_cast<unsigned char>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
+                //resultArray[(y * width + x) * 3 + 1] = static_cast<unsigned char>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
+                //resultArray[(y * width + x) * 3 + 2] = static_cast<unsigned char>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));
             }
         }
     }
