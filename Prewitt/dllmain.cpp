@@ -41,8 +41,8 @@ extern "C" __declspec(dllexport) void ExampleFunction(unsigned char* resultArray
 
                 for (int i = -1; i <= 1; ++i) {
                     for (int j = -1; j <= 1; ++j) {
-                        horizontalSum += byteArray[((y + i) * width + (x + j)) * 3 + c + 2] * horizontalFilter[i + 1][j + 1];
-                        verticalSum += byteArray[((y + i) * width + (x + j)) * 3 + c + 2] * verticalFilter[i + 1][j + 1];
+                        horizontalSum += byteArray[((y + i) * width + (x + j)) * 3 + c ] * horizontalFilter[i + 1][j + 1];
+                        verticalSum += byteArray[((y + i) * width + (x + j)) * 3 + c ] * verticalFilter[i + 1][j + 1];
                     }
                 }
                 int gradient = static_cast<int>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum));

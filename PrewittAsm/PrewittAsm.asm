@@ -19,7 +19,7 @@ applyPrewitt:
     dec r13 ; -||-
 
     xor     r10, r10       ; R10 = iterator wierszy (i)
-    inc r11 ; zeby pominac 1 wiersz
+    add r11, 3 ; zeby pominac 1 wiersz
 
 outer_loop:
     ; Przygotowanie pêtli wewnêtrznej (iteracja po kolumnach)
@@ -27,7 +27,7 @@ outer_loop:
     mov     rsi, rdx       ; RSI = wskaŸnik na obraz wyjœciowy (przywrócenie pocz¹tkowego adresu)
 
     xor     r11, r11       ; R13 = iterator kolumn (j)
-    inc r11 ; zeby pominac 1 kolumne
+    add r11, 3 ; zeby pominac 1 kolumne
 
 inner_loop:
     ;Tutaj ma byc docelowo filtr prwitta
@@ -47,8 +47,8 @@ inner_loop:
     ;dodawnie 2 wartosc z filtru x (lewy srodkowy)
     xorps xmm0, xmm0
     xor rax, rax
-    mov r14, r11
-    sub r14, 3
+
+    add r14, r8
     add al, byte PTR[rsi + r14]
     pinsrd xmm0, eax, 0
     addps xmm1, xmm0
@@ -56,9 +56,8 @@ inner_loop:
     ;dodawnie 3 wartosc z filtru x (lewy dolny rog)
     xorps xmm0, xmm0
     xor rax, rax
-    mov r14, r11
+
     add r14, r8
-    sub r14, 3
     add al, byte PTR[rsi + r14]
     pinsrd xmm0, eax, 0
     addps xmm1, xmm0
@@ -76,8 +75,8 @@ inner_loop:
     ;odjecie 5 wartosc z filtru x (prawy srodkowy)
     xorps xmm0, xmm0
     xor rax, rax
-    mov r14, r11
-    add r14, 3
+    
+    add r14, r8
     add al, byte PTR[rsi + r14]
     pinsrd xmm0, eax, 0
     subps xmm1, xmm0
@@ -85,9 +84,8 @@ inner_loop:
     ;odjecie 6 wartosc z filtru x (prawy dolny rog)
     xorps xmm0, xmm0
     xor rax, rax
-    mov r14, r11
+
     add r14, r8
-    add r14, 3
     add al, byte PTR[rsi + r14]
     pinsrd xmm0, eax, 0
     subps xmm1, xmm0
@@ -105,8 +103,8 @@ inner_loop:
     ;dodawnie 2 wartosc z filtru y (gorny srodkowy)
     xorps xmm0, xmm0
     xor rax, rax
-    mov r14, r11
-    sub r14, r8
+    
+    add r14, 3
     add al, byte PTR[rsi + r14]
     pinsrd xmm0, eax, 1
     addps xmm1, xmm0
@@ -114,8 +112,7 @@ inner_loop:
     ;dodawnie 3 wartosc z filtru y (prawy gorny rog)
     xorps xmm0, xmm0
     xor rax, rax
-    mov r14, r11
-    sub r14, r8
+
     add r14, 3
     add al, byte PTR[rsi + r14]
     pinsrd xmm0, eax, 1
@@ -134,8 +131,8 @@ inner_loop:
     ;odjecie 5 wartosc z filtru y (dolny srodkowy)
     xorps xmm0, xmm0
     xor rax, rax
-    mov r14, r11
-    add r14, r8
+
+    add r14, 3
     add al, byte PTR[rsi + r14]
     pinsrd xmm0, eax, 1
     subps xmm1, xmm0
@@ -143,8 +140,7 @@ inner_loop:
     ;odjecie 6 wartosc z filtru y (prawy dolny rog)
     xorps xmm0, xmm0
     xor rax, rax
-    mov r14, r11
-    add r14, r8
+
     add r14, 3
     add al, byte PTR[rsi + r14]
     pinsrd xmm0, eax, 1

@@ -79,8 +79,8 @@ namespace WindowsFormsApp2
             //Stopwatch stopwatch = Stopwatch.StartNew(); 
             
             //Przekazywanie w formacie bgr
-            ExampleFunction(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
-            //Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
+            //ExampleFunction(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
+            Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
 
             //stopwatch.Stop();
             //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString(), "aha");
