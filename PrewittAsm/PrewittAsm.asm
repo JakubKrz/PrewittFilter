@@ -150,28 +150,17 @@ inner_loop:
     pinsrd xmm0, eax, 1
     subps xmm1, xmm0
     
-    ;Trzeba dodac filt w kierunku y i 2 pixel naraz zeby 2 na raz przetwarzac i wykorzystac caly rejestr xmm
     ;gradX (1) - gradY (1) - gradX (2) - gradY (2)
-    ;caly rejestr ^2
-    ;wyciagnac  dodac zrobic pierwiastek i zapisac
     ;Dodac sprawdzenie czy wartosc nie przekrqacz 255???
     ;mozna to robic w mm zamiast xmm
-    ;intrukcja phadd?
-    ;tu dodac wartosc gradientx^2 + gradinty^2
-    ;na razei tylko grandient x
-    pmulld xmm1, xmm1   ; gradient * gradient
-    pextrd	eax, xmm1, 0    ; wyciagniecie wartosci do eax
-    xor rbx, rbx
-    pextrd ebx, xmm1, 1
-    add eax, ebx
-    ; tu powinno sie to dodac
-    
-    xorps xmm3, xmm3
-    cvtsi2sd    xmm3, eax ; z eax do smm3 zeby zrobi pierwiastek
-    sqrtsd xmm3, xmm3   ;pierwistek z gradienta
-    
-    xor rax, rax
-    cvtsd2si   eax, xmm3
+
+     ;Tutah kwadra, dodwaniae, zmiana na double, pierwiastkowanie, zmiana na int (chyba niepotrzebnie xmm, mozna zmiejszyc)
+    pmulld xmm1, xmm1   ; podnosimy wartoœci do kwadratu
+    phaddd xmm1, xmm1   ; dodajemy wartoœci
+    cvtdq2pd    xmm1, xmm1 ; konwertujemy na dp
+    sqrtpd  xmm1, xmm1   ; pierwiastej dp
+    cvtpd2dq  xmm1 ,xmm1    ;zmiana z dp do int
+    movd eax, xmm1 ; przeniesienie do eax 
 
 
     mov byte PTR[rdi + r11 + 2], al ; red

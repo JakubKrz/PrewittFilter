@@ -74,13 +74,13 @@ namespace WindowsFormsApp2
             byte[] pixelData = new byte[image.Length - 54];
             byte[] pixelDataOriginal = new byte[image.Length - 54];
             Array.Copy(image, 54, pixelData, 0, pixelData.Length);
-            Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);
+            Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);// bez sensu kopiwoac mozna przekazac pusta TODO!
 
             //Stopwatch stopwatch = Stopwatch.StartNew(); 
             
             //Przekazywanie w formacie bgr
-            //ExampleFunction(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
-            Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
+            ExampleFunction(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
+            //Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
 
             //stopwatch.Stop();
             //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString(), "aha");
