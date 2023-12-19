@@ -17,6 +17,7 @@ namespace WindowsFormsApp2
         public static extern byte FiltrAsm(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
 
         private string imagePath;
+
         public Form1()
         {
             InitializeComponent();
@@ -76,14 +77,14 @@ namespace WindowsFormsApp2
             Array.Copy(image, 54, pixelData, 0, pixelData.Length);
             Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);// bez sensu kopiwoac mozna przekazac pusta TODO!
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            //Stopwatch stopwatch = Stopwatch.StartNew();
 
             //Przekazywanie w formacie bgr
             //FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
             FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
 
-            stopwatch.Stop();
-            MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
+            //stopwatch.Stop();
+            //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
 
             //byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height); niepotrzebne do wyswietlania
 

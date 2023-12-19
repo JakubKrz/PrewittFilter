@@ -37,28 +37,37 @@ outer_loop:
 inner_loop:
     ;Tutaj ma byc docelowo filtr prwitta
     
-    xor r15, r15
+       xor r15, r15
     xorps xmm0, xmm0 
     xorps xmm1, xmm1
-
+    xorps xmm3, xmm3
+    xorps xmm4, xmm4
+    xorps xmm5, xmm5
+    xorps xmm6, xmm6
     ;dodawnie 1 wartosc z filtru x (lewy gorny rog)
     xor rax, rax
     mov r14, r11 ;zamiast ciagle przenosic r11 do r14 uzyc inngeo rejestru?
     sub r14, r8
     sub r14, 3 
-    ;add al, byte PTR[rsi + r14]
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm3, r15, 0
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm3, r15, 4
     ;dodawnie 2 wartosc z filtru x (lewy srodkowy)
     add r14, r8                    ;przejscie do srodkowego
     mov r15b, byte PTR[rsi + r14] 
-    add eax, r15d
+    pinsrw xmm3, r15, 1
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm3, r15, 5
     ;dodawnie 3 wartosc z filtru x (lewy dolny rog)
     add r14, r8
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm3, r15, 2
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm3, r15, 6
     ;Zapisanie wyniku dodawania w xmm1 (0)
-    pinsrd xmm1, eax, 0 ; zmienic na mm?
+    phaddw  xmm3, xmm3
+    phaddw  xmm3, xmm3
 
      ;odjecie 4 wartosc z filtru x (prawy gorny rog)
     ;xorps xmm0, xmm0
@@ -67,36 +76,49 @@ inner_loop:
     sub r14, r8
     add r14, 3 
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm4, r15, 0
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm4, r15, 4
     ;odjecie 5 wartosc z filtru x (prawy srodkowy)
     add r14, r8
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm4, r15, 1
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm4, r15, 5
     ;odjecie 6 wartosc z filtru x (prawy dolny rog)
     add r14, r8
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm4, r15, 2
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm4, r15, 6
     ;zapisanie wyniku do xmm1
-    pinsrd xmm0, eax, 0
-
-
+    phaddw  xmm4, xmm4
+    phaddw  xmm4, xmm4
+    
     ;dodawnie 1 wartosc z filtru y (lewy gorny rog)
     xor rax, rax
     mov r14, r11 
     sub r14, r8
     sub r14, 3
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm5, r15d, 0
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm5, r15d, 4
     ;dodawnie 2 wartosc z filtru y (gorny srodkowy)
     add r14, 3
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm5, r15d, 1
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm5, r15d, 5
     ;dodawnie 3 wartosc z filtru y (prawy gorny rog)
     add r14, 3
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
-    ;Zapisanie wyniku dodawania w xmm1 (1)
-    pinsrd xmm1, eax, 1
+    pinsrw xmm5, r15d, 2
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm5, r15d, 6
+
+    phaddw xmm5, xmm5
+    phaddw xmm5, xmm5
 
     ;odjecie 4 wartosc z filtru y (lewy dolny rog)
     xor rax, rax
@@ -104,17 +126,42 @@ inner_loop:
     add r14, r8
     sub r14, 3
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm6, r15d, 0
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm6, r15d, 4
     ;odjecie 5 wartosc z filtru y (dolny srodkowy)
     add r14, 3
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
+    pinsrw xmm6, r15d, 1
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm6, r15d, 5
     ;odjecie 6 wartosc z filtru y (prawy dolny rog)
     add r14, 3
     mov r15b, byte PTR[rsi + r14]
-    add eax, r15d
-    ;Zapisanie do xmm0 (1)
-    pinsrd xmm0, eax, 1
+    pinsrw xmm6, r15d, 2
+    mov r15b, byte PTR[rsi + r14 + 1]
+    pinsrw xmm6, r15d, 6
+
+    phaddw xmm6, xmm6
+    phaddw xmm6, xmm6
+
+    pextrw  r15d, xmm3, 0
+    pinsrd xmm1, r15d, 0 ;x123 (1)
+    pextrw  r15d, xmm3, 1
+    pinsrd xmm1, r15d, 2 ;x123 (2)
+    pextrw r15d, xmm4, 0
+    pinsrd xmm0, r15d, 0 ;x456 (1)
+    pextrw r15d, xmm4, 1
+    pinsrd xmm0, r15d, 2 ;x456 (2)
+
+    pextrw  r15d, xmm5, 0
+    pinsrd xmm1, r15d, 1 ;y123 (1)
+    pextrw  r15d, xmm5, 1
+    pinsrd xmm1, r15d, 3 ;y123 (2)
+    pextrw r15d, xmm6, 0
+    pinsrd xmm0, r15d, 1 ;y456 (1)
+    pextrw r15d, xmm6, 1
+    pinsrd xmm0, r15d, 3 ;y456 (2)
 
     subps xmm1, xmm0 ;operacja x123-x456, y123-y456
     
@@ -128,15 +175,13 @@ inner_loop:
     cvtdq2pd    xmm1, xmm1 ; konwertujemy na dp
     sqrtpd  xmm1, xmm1   ; pierwiastej dp
     cvtpd2dq  xmm1 ,xmm1    ;zmiana z dp do int
-    movd eax, xmm1 ; przeniesienie do eax 
-
-
-    ;mov byte PTR[rdi + r11 + 2], al ; red
-    ;mov byte PTR[rdi + r11 + 1], al ; green 
-    mov byte PTR[rdi + r11 ], al  ;blue
+    movd eax, xmm1 ; przeniesienie do eax
+    mov byte PTR[rdi + r11 ], al  ;
+    pextrd  eax, xmm1, 1
+    mov byte PTR[rdi + r11 + 1], al  ;
 
     ; Inkrementacja iteratora kolumn (j)
-    add r11, 1  ;zmienic na 3 jesli tylko 1 kolor
+    add r11, 2 ; Dodanie 2 bo w kazdej petli obliczmy 2 wartosci
     ;inc rsi wtedy nie bedzie trzeba dodawac r11 przed kazdym adresowaniem 
     cmp r11, r12        ; sprawdzanie czy koniec wiersza (przedostatnia kolumna w wierszu)
     jl inner_loop     ; 
