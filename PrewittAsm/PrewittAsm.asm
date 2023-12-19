@@ -65,7 +65,7 @@ inner_loop:
     pinsrw xmm3, r15, 2
     mov r15b, byte PTR[rsi + r14 + 1]
     pinsrw xmm3, r15, 6
-    ;Zapisanie wyniku dodawania w xmm1 (0)
+    ;dodanie x1+x2+x3 (1) x1+x2+x3(2)
     phaddw  xmm3, xmm3
     phaddw  xmm3, xmm3
 
@@ -91,7 +91,7 @@ inner_loop:
     pinsrw xmm4, r15, 2
     mov r15b, byte PTR[rsi + r14 + 1]
     pinsrw xmm4, r15, 6
-    ;zapisanie wyniku do xmm1
+    ;dodanie x4+x5+x6 (1) x4+x5+x6(2)
     phaddw  xmm4, xmm4
     phaddw  xmm4, xmm4
     
@@ -116,7 +116,7 @@ inner_loop:
     pinsrw xmm5, r15d, 2
     mov r15b, byte PTR[rsi + r14 + 1]
     pinsrw xmm5, r15d, 6
-
+    ;dodanie y1+y2+y3 (1) y1+y2+y3 (2)
     phaddw xmm5, xmm5
     phaddw xmm5, xmm5
 
@@ -141,10 +141,14 @@ inner_loop:
     pinsrw xmm6, r15d, 2
     mov r15b, byte PTR[rsi + r14 + 1]
     pinsrw xmm6, r15d, 6
-
+    ;dodanie y4+y5+y6 (1) y4+y5+y6 (2)
     phaddw xmm6, xmm6
     phaddw xmm6, xmm6
 
+    ; To raczej da sie zoptymalziwac jescze
+    ;Wyciaganie do xmm1 xmm0
+    ;xmm1 ---   y123(2) - x123(2) - y123(1) - x123(1)
+    ;xmm0 ---   y456(2) - x456(2) - y456(1) - x456(1)
     pextrw  r15d, xmm3, 0
     pinsrd xmm1, r15d, 0 ;x123 (1)
     pextrw  r15d, xmm3, 1
@@ -163,21 +167,21 @@ inner_loop:
     pextrw r15d, xmm6, 1
     pinsrd xmm0, r15d, 3 ;y456 (2)
 
-    subps xmm1, xmm0 ;operacja x123-x456, y123-y456
+
+    subps xmm1, xmm0 ;operacja x123-x456, y123-y456 na (1) i (2)
     
     ;gradX (1) - gradY (1) - gradX (2) - gradY (2)
-    ;Dodac sprawdzenie czy wartosc nie przekrqacz 255???
-    ;mozna to robic w mm zamiast xmm
+    ;Dodac sprawdzenie czy wartosc nie przekrqacz 255??? TODO
 
-     ;Tutah kwadra, dodwaniae, zmiana na double, pierwiastkowanie, zmiana na int (chyba niepotrzebnie xmm, mozna zmiejszyc)
+     ;Tutah kwadrat, dodwaniae, zmiana na double, pierwiastkowanie, zmiana na int (chyba niepotrzebnie xmm, mozna zmiejszyc)
     pmulld xmm1, xmm1   ; podnosimy wartoœci do kwadratu
     phaddd xmm1, xmm1   ; dodajemy wartoœci
     cvtdq2pd    xmm1, xmm1 ; konwertujemy na dp
-    sqrtpd  xmm1, xmm1   ; pierwiastej dp
+    sqrtpd  xmm1, xmm1   ; pierwiastek dp
     cvtpd2dq  xmm1 ,xmm1    ;zmiana z dp do int
-    movd eax, xmm1 ; przeniesienie do eax
+    movd eax, xmm1 ; przeniesienie do eax (1)
     mov byte PTR[rdi + r11 ], al  ;
-    pextrd  eax, xmm1, 1
+    pextrd  eax, xmm1, 1 ;przniesienie do eax (2)
     mov byte PTR[rdi + r11 + 1], al  ;
 
     ; Inkrementacja iteratora kolumn (j)
