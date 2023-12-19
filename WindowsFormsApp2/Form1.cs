@@ -30,6 +30,11 @@ namespace WindowsFormsApp2
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox1.SelectedItem = processorCount;
 
+            comboBox2.Items.Add("C++");
+            comboBox2.Items.Add("ASM");
+            comboBox2.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox2.SelectedIndex = 0;
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -70,7 +75,7 @@ namespace WindowsFormsApp2
             byte[] image = ImageToByteArray(pictureBox1.Image);
 
 
-
+            //TODO podzielic na czesci dla watkow
 
             byte[] pixelData = new byte[image.Length - 54];
             byte[] pixelDataOriginal = new byte[image.Length - 54];
@@ -80,8 +85,14 @@ namespace WindowsFormsApp2
             Stopwatch stopwatch = Stopwatch.StartNew(); // cos zrobic bo czasami sie psuje
 
             //Przekazywanie w formacie bgr
-            FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
-            //FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
+            //TODO zmienic dodac osobne funkcje ladujace dynamiczne biblioteki
+            if (comboBox2.SelectedIndex == 0)
+            {
+                FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height);
+            } else if(comboBox2.SelectedIndex ==1)
+            { 
+                FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
+            }
 
             stopwatch.Stop();
             MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
@@ -194,5 +205,9 @@ namespace WindowsFormsApp2
 
         }
 
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
