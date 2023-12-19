@@ -1,2 +1,2 @@
 LIBRARY PrewittAsm
-EXPORTS Myproc
+EXPORTS FiltrAsm

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33801.468
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33423.256
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrewittFilterApp", "WindowsFormsApp2\PrewittFilterApp.csproj", "{B92FDE16-72C4-4B39-A4FC-8F665FB5FC78}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -55,8 +55,8 @@ Global
 		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Debug|x86.Build.0 = Debug|Win32
 		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Release|Any CPU.ActiveCfg = Release|x64
 		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Release|Any CPU.Build.0 = Release|x64
-		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Release|x64.ActiveCfg = Release|x64
-		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Release|x64.Build.0 = Release|x64
+		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Release|x64.ActiveCfg = Debug|x64
+		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Release|x64.Build.0 = Debug|x64
 		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Release|x86.ActiveCfg = Release|Win32
 		{70F4304D-7ED3-47C2-99A9-FFD17738EFC2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection

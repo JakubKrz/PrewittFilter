@@ -18,7 +18,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 
 }
-extern "C" __declspec(dllexport) void ExampleFunction(unsigned char* resultArray, unsigned char* byteArray, int width, int height)
+extern "C" __declspec(dllexport) void FiltrCpp(unsigned char* resultArray, unsigned char* byteArray, int width, int height)
 {
 
     int horizontalFilter[3][3] = {

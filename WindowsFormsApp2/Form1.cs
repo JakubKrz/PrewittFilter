@@ -12,9 +12,9 @@ namespace WindowsFormsApp2
     public partial class Form1 : Form
     {
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
-        public static extern void ExampleFunction(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
+        public static extern void FiltrCpp(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
-        public static extern byte Myproc(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
+        public static extern byte FiltrAsm(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
 
         private string imagePath;
         public Form1()
@@ -76,18 +76,18 @@ namespace WindowsFormsApp2
             Array.Copy(image, 54, pixelData, 0, pixelData.Length);
             Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);// bez sensu kopiwoac mozna przekazac pusta TODO!
 
-            //Stopwatch stopwatch = Stopwatch.StartNew(); 
-            
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             //Przekazywanie w formacie bgr
-            //ExampleFunction(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
-            Myproc(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
+            //FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width,imageBitmap.Height);
+            FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
 
-            //stopwatch.Stop();
-            //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString(), "aha");
+            stopwatch.Stop();
+            MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
 
-            byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
+            //byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height); niepotrzebne do wyswietlania
 
-            Bitmap modifiedBitmap = ConstructBitmap(modifiedImageWithHeader, pictureBox1.Image.Width, pictureBox1.Image.Height);
+            Bitmap modifiedBitmap = ConstructBitmap(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
 
             modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY); //pbrot bo zdjecie z jakiegos powodu wychodzi do gory nogami
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -126,67 +126,67 @@ namespace WindowsFormsApp2
             }
         }
 
-        private byte[] AddBmpHeader(byte[] pixelData, int width, int height)
-        {
+        //private byte[] AddBmpHeader(byte[] pixelData, int width, int height)
+        //{
 
-            int imageSize = pixelData.Length;
+        //    int imageSize = pixelData.Length;
 
 
-            int headerSize = 54;
+        //    int headerSize = 54;
 
-            int fileSize = headerSize + imageSize;
+        //    int fileSize = headerSize + imageSize;
 
-            byte[] header = new byte[headerSize];
+        //    byte[] header = new byte[headerSize];
 
-            header[0] = (byte)'B';
-            header[1] = (byte)'M';
+        //    header[0] = (byte)'B';
+        //    header[1] = (byte)'M';
 
-            // Rozmiar pliku
-            header[2] = (byte)(fileSize);
-            header[3] = (byte)(fileSize >> 8);
-            header[4] = (byte)(fileSize >> 16);
-            header[5] = (byte)(fileSize >> 24);
+        //    // Rozmiar pliku
+        //    header[2] = (byte)(fileSize);
+        //    header[3] = (byte)(fileSize >> 8);
+        //    header[4] = (byte)(fileSize >> 16);
+        //    header[5] = (byte)(fileSize >> 24);
 
-            // Offset danych pikseli w pliku
-            header[10] = 54; // offset danych pikseli zaczyna się od bajtu 54
+        //    // Offset danych pikseli w pliku
+        //    header[10] = 54; // offset danych pikseli zaczyna się od bajtu 54
 
-            // Rozmiar nagłówka informacyjnego
-            header[14] = 40; // Rozmiar nagłówka informacyjnego to 40 bajtów
+        //    // Rozmiar nagłówka informacyjnego
+        //    header[14] = 40; // Rozmiar nagłówka informacyjnego to 40 bajtów
 
-            // Szerokość obrazu
-            header[18] = (byte)width;
-            header[19] = (byte)(width >> 8);
-            header[20] = (byte)(width >> 16);
-            header[21] = (byte)(width >> 24);
+        //    // Szerokość obrazu
+        //    header[18] = (byte)width;
+        //    header[19] = (byte)(width >> 8);
+        //    header[20] = (byte)(width >> 16);
+        //    header[21] = (byte)(width >> 24);
 
-            // Wysokość obrazu
-            header[22] = (byte)height;
-            header[23] = (byte)(height >> 8);
-            header[24] = (byte)(height >> 16);
-            header[25] = (byte)(height >> 24);
+        //    // Wysokość obrazu
+        //    header[22] = (byte)height;
+        //    header[23] = (byte)(height >> 8);
+        //    header[24] = (byte)(height >> 16);
+        //    header[25] = (byte)(height >> 24);
 
-            // Liczba płaszczyzn
-            header[26] = 1;
+        //    // Liczba płaszczyzn
+        //    header[26] = 1;
 
-            // Bitów na piksel (24 bitów na piksel)
-            header[28] = 24;
+        //    // Bitów na piksel (24 bitów na piksel)
+        //    header[28] = 24;
 
-            // Kompresja (bez kompresji)
-            header[30] = 0;
+        //    // Kompresja (bez kompresji)
+        //    header[30] = 0;
 
-            // Rozmiar obrazu (0 dla niekompresowanego BMP)
-            header[34] = (byte)imageSize;
-            header[35] = (byte)(imageSize >> 8);
-            header[36] = (byte)(imageSize >> 16);
-            header[37] = (byte)(imageSize >> 24);
+        //    // Rozmiar obrazu (0 dla niekompresowanego BMP)
+        //    header[34] = (byte)imageSize;
+        //    header[35] = (byte)(imageSize >> 8);
+        //    header[36] = (byte)(imageSize >> 16);
+        //    header[37] = (byte)(imageSize >> 24);
 
-            // Skonkatenuj nagłówek z danymi pikseli
-            byte[] result = new byte[fileSize];
-            Array.Copy(header, result, headerSize);
-            Array.Copy(pixelData, 0, result, headerSize, imageSize);
+        //    // Skonkatenuj nagłówek z danymi pikseli
+        //    byte[] result = new byte[fileSize];
+        //    Array.Copy(header, result, headerSize);
+        //    Array.Copy(pixelData, 0, result, headerSize, imageSize);
 
-            return result;
-        }
+        //    return result;
+        //}
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {

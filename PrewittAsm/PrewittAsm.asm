@@ -1,5 +1,5 @@
 .CODE
-Myproc PROC
+FiltrAsm PROC
 
 applyPrewitt:
     ; Parametry wejœciowe:
@@ -8,10 +8,16 @@ applyPrewitt:
     ;   r8  - szerokoœæ obrazu (width)
     ;   r9  - wysokoœæ obrazu (height)
             
+    push r12
+    push r13
+    push r14
+    push r15
+    push rdi
+    push rsi
     ;r10 iteratot i
     ;r11 iterator j
-    push r15
-    imul    r8, 3         ; R8 = width * 3 (bo 3 bajty gbr)
+
+    imul r8, 3         ; R8 = width * 3 (bo 3 bajty gbr)
 
     mov r12, r8
     sub r12, 3 ; do porowniania zeby pominac ostatni wiersz 
@@ -144,10 +150,15 @@ inner_loop:
     cmp     r10, r13        ; Sprawdzanie czy przedostatni wiersz koniec obrazu
     jl      outer_loop     ; 
 
-    pop r15
     ; Koniec
+    pop rsi
+    pop rdi
+    pop r15
+    pop r14
+    pop r13
+    pop r12
     ret
 
-Myproc ENDP
+FiltrAsm ENDP
 
 END
