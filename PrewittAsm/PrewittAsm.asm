@@ -14,13 +14,12 @@ applyPrewitt:
     imul    r8, 3         ; R8 = width * 3 (bo 3 bajty gbr)
 
     mov r12, r8
-    dec r12 ; do porowniania zeby pominac ostatni wiersz i klomne
+    sub r12, 3 ; do porowniania zeby pominac ostatni wiersz 
     mov r13, r9
-    dec r13 ; -||-
+    dec r13 ; -||- ostatnia kolumne
 
-    xor     r10, r10       ; R10 = iterator wierszy (i)
-    add r11, 3 ; zeby pominac 1 wiersz
-
+    xor r10, r10       ; R10 = iterator wierszy (i)
+    inc r10 ; zeby pominac 1 wiersz
 outer_loop:
     ; Przygotowanie pêtli wewnêtrznej (iteracja po kolumnach)
     mov     rdi, rcx       ; RDI = wskaŸnik na obraz wejœciowy (przywrócenie pocz¹tkowego adresu)
