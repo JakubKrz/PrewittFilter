@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -12,17 +13,17 @@ namespace WindowsFormsApp2
     public partial class Form1 : Form
     {
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
-        public static extern void FiltrCpp(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
+        public static extern void FiltrCpp(byte[] byteArray, byte[] byteArrayOriginal, int width, int height, int start, int end);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
         public static extern byte FiltrAsm(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
 
         private string imagePath;
-
+        int processorCount;
         public Form1()
         {
             InitializeComponent();
-            int processorCount = Environment.ProcessorCount;
-            for (int i = 0; i <= 6; i++)
+            processorCount = Environment.ProcessorCount;
+            for (int i = 0; i <= 6; i++) //maja byc raczej od 1-64 a nie tylko potegi 2
             {
                 int value = (int)Math.Pow(2, i);
                 comboBox1.Items.Add(value);
@@ -82,22 +83,33 @@ namespace WindowsFormsApp2
             Array.Copy(image, 54, pixelData, 0, pixelData.Length);
             Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);// bez sensu kopiwoac mozna przekazac pusta TODO!
 
-            Stopwatch stopwatch = Stopwatch.StartNew(); // cos zrobic bo czasami sie psuje
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
             //Przekazywanie w formacie bgr
             //TODO zmienic dodac osobne funkcje ladujace dynamiczne biblioteki
+            int height = imageBitmap.Height;
+            int width = imageBitmap.Width;
+            int rowsPerThread = height / processorCount;
             if (comboBox2.SelectedIndex == 0)
             {
-                FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height);
-            } else if(comboBox2.SelectedIndex ==1)
-            { 
-                FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); 
-            }
+                Parallel.For(0, processorCount , threadIndex => //TO DO: upewnic sie czy dobrze dzielone sa watki ( na razie dziala) ( czy sa wszytkie wiersze? i czy dla nieparzystych dobrze?)
+                {
+                    int startRow = threadIndex * rowsPerThread + 1;
+                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
 
+                    FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow);
+                });
+                //FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, 1, imageBitmap.Height); // do usuniecia
+            } else if(comboBox2.SelectedIndex == 1)
+            { 
+                FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); // przy duzych plikach i ponownym uruchomieniu asm rzuca wyjatek sprawdzic dlaczeg TO DO
+            }
+    
             stopwatch.Stop();
             MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
 
             //byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height); niepotrzebne do wyswietlania
+
 
             Bitmap modifiedBitmap = ConstructBitmap(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
 
@@ -122,7 +134,7 @@ namespace WindowsFormsApp2
             IntPtr ptr = bmpData.Scan0;
 
 
-            System.Runtime.InteropServices.Marshal.Copy(pixelData, 54, ptr, pixelData.Length - 54);
+            System.Runtime.InteropServices.Marshal.Copy(pixelData, 0, ptr, pixelData.Length); //- 54);
 
 
             modifiedBitmap.UnlockBits(bmpData);
@@ -202,7 +214,10 @@ namespace WindowsFormsApp2
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            if (int.TryParse(comboBox1.SelectedItem.ToString(), out int selectedValue))
+            {
+                processorCount = selectedValue;
+            }
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)

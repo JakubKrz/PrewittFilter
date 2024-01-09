@@ -37,7 +37,7 @@ outer_loop:
 inner_loop:
     ;Tutaj ma byc docelowo filtr prwitta
     
-       xor r15, r15
+     xor r15, r15
     xorps xmm0, xmm0 
     xorps xmm1, xmm1
     xorps xmm3, xmm3
