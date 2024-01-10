@@ -15,7 +15,7 @@ namespace WindowsFormsApp2
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
         public static extern void FiltrCpp(byte[] byteArray, byte[] byteArrayOriginal, int width, int height, int start, int end);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
-        public static extern byte FiltrAsm(byte[] byteArray, byte[] byteArrayOriginal, int width, int height);
+        public static extern byte FiltrAsm(byte[] byteArray, byte[] byteArrayOriginal, int width, int height, int start, int end);
 
         private string imagePath;
         int processorCount;
@@ -101,8 +101,9 @@ namespace WindowsFormsApp2
                 });
                 //FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, 1, imageBitmap.Height); // do usuniecia
             } else if(comboBox2.SelectedIndex == 1)
-            { 
-                FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height); // przy duzych plikach i ponownym uruchomieniu asm rzuca wyjatek sprawdzic dlaczeg TO DO
+            {
+                    FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, 0 , imageBitmap.Height/2 ); // przy duzych plikach i ponownym uruchomieniu asm rzuca wyjatek sprawdzic dlaczeg TO DO
+                FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, imageBitmap.Height / 2 , imageBitmap.Height);
             }
     
             stopwatch.Stop();

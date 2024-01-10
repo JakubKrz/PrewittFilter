@@ -7,7 +7,10 @@ applyPrewitt:
     ;   rdx - wskaŸnik na obraz wyjœciowy (GBR24)
     ;   r8  - szerokoœæ obrazu (width)
     ;   r9  - wysokoœæ obrazu (height)
-            
+
+    mov eax, DWORD PTR[rsp + 40]
+    mov ebx, DWORD PTR[rsp + 48]
+
     push r12
     push r13
     push r14
@@ -20,18 +23,31 @@ applyPrewitt:
     imul r8, 3         ; R8 = width * 3 (bo 3 bajty gbr)
 
     mov r12, r8
-    sub r12, 3 ; do porowniania zeby pominac ostatni wiersz 
-    mov r13, r9
-    dec r13 ; -||- ostatnia kolumne
+    sub r12, 3 ; do porowniania zeby pominac ostatni kolumne 
+    mov r13, rbx ; ustawianie ostatniego przetwarzangego woerszu dla porownania na koncu petli
+    dec r13 ; -||- ostatni wiersz , dziala bez tego?? ( zmienic zby usuwac tylko ostatni ostatni, a nie w kazdym watku)
+
+    ;dla watkow
+    ;mov r13d, DWORD PTR[rsp + 48] ; wstawianie ostantniego przetwarzengo wierszu dla porownani w petli
+    ;do r11 przeniesc poczatkowy wiersz * r8 zeby zaczyna od dobrego mieejsca
 
     xor r10, r10       ; R10 = iterator wierszy (i)
-    inc r10 ; zeby pominac 1 wiersz
+   ;inc r10 ; zeby pominac 1 wiersz
+    mov r10, rax ; ustawnie iteratora wierszy na 1 wiersz do przetowrzenia
+   
+    imul rax, r8; poczatkowy wiersz * szerokosc
+    add rcx, rax    ; przesuniecie wskaznik na poczatekowy wiersz
+    add rdx, rax    ; przesuniecie wskaznik na poczatekowy wiersz
 outer_loop:
     ; Przygotowanie pêtli wewnêtrznej (iteracja po kolumnach)
     mov     rdi, rcx       ; RDI = wskaŸnik na obraz wejœciowy (przywrócenie pocz¹tkowego adresu)
     mov     rsi, rdx       ; RSI = wskaŸnik na obraz wyjœciowy (przywrócenie pocz¹tkowego adresu)
 
-    xor     r11, r11       ; R13 = iterator kolumn (j)
+    ;xor rax, rax
+    ;mov eax, DWORD PTR[rsp + 40]
+    ;mul r8
+    ;mov r11, rax
+    xor r11, r11       ; R11 = iterator kolumn (j)
     add r11, 3 ; zeby pominac 1 kolumne
 
 inner_loop:
