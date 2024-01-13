@@ -25,7 +25,7 @@ applyPrewitt:
     mov r12, r8
     sub r12, 3 ; do porowniania zeby pominac ostatni kolumne 
     mov r13, rbx ; ustawianie ostatniego przetwarzangego woerszu dla porownania na koncu petli
-    dec r13 ; -||- ostatni wiersz , dziala bez tego?? ( zmienic zby usuwac tylko ostatni ostatni, a nie w kazdym watku)
+    ;dec r13 ; -||- ostatni wiersz , dziala bez tego?? ( zmienic zby usuwac tylko ostatni ostatni, a nie w kazdym watku)
 
     ;dla watkow
     ;mov r13d, DWORD PTR[rsp + 48] ; wstawianie ostantniego przetwarzengo wierszu dla porownani w petli

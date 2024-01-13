@@ -95,15 +95,28 @@ namespace WindowsFormsApp2
                 Parallel.For(0, processorCount , threadIndex => //TO DO: upewnic sie czy dobrze dzielone sa watki ( na razie dziala) ( czy sa wszytkie wiersze? i czy dla nieparzystych dobrze?)
                 {
                     int startRow = threadIndex * rowsPerThread + 1;
-                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
+                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1; //pomijanie wyslania ostatniego wierszu( TO DO: zmienic w cpp)
 
                     FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow);
                 });
                 //FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, 1, imageBitmap.Height); // do usuniecia
             } else if(comboBox2.SelectedIndex == 1)
             {
-                    FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, 0 , imageBitmap.Height/2 ); // przy duzych plikach i ponownym uruchomieniu asm rzuca wyjatek sprawdzic dlaczeg TO DO
-                FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, imageBitmap.Height / 2 , imageBitmap.Height);
+                Parallel.For(0, processorCount, threadIndex => //TO DO: upewnic sie czy dobrze dzielone sa watki ( na razie dziala) ( czy sa wszytkie wiersze? i czy dla nieparzystych dobrze?)
+                {
+                    int startRow = threadIndex * rowsPerThread + 1;
+                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;//pomijanie wyslania ostatniego wierszu (TO DO: zmienic w asm, nie pomijac ostatniego)
+
+                    FiltrAsm(pixelData, pixelDataOriginal, width, height, startRow, endRow);
+                });
+                //Task task1 = Task.Run(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, 0, height / 3));
+                //Task task2 = Task.Run(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, height / 3, height/3 *2));
+                //Task task3 = Task.Run(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, height / 3 * 2, height - 1));
+
+                // Wait for both tasks to complete
+                //Task.WaitAll(task1, task2, task3);
+                //FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, 0 , imageBitmap.Height/2 ); // przy duzych plikach i ponownym uruchomieniu asm rzuca wyjatek sprawdzic dlaczeg TO DO
+                //FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, imageBitmap.Height / 2 , imageBitmap.Height-1);
             }
     
             stopwatch.Stop();
