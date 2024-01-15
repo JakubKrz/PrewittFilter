@@ -32,7 +32,7 @@ applyPrewitt:
     ;do r11 przeniesc poczatkowy wiersz * r8 zeby zaczyna od dobrego mieejsca
 
     xor r10, r10       ; R10 = iterator wierszy (i)
-   ;inc r10 ; zeby pominac 1 wiersz
+    ;inc r10 ; zeby pominac 1 wiersz
     mov r10, rax ; ustawnie iteratora wierszy na 1 wiersz do przetowrzenia
    
     imul rax, r8; poczatkowy wiersz * szerokosc

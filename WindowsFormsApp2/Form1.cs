@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,10 +13,10 @@ namespace WindowsFormsApp2
 {
     public partial class Form1 : Form
     {
-        [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
+        [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")] //TO DO: zaldowywac jakos inaczej to
         public static extern void FiltrCpp(byte[] byteArray, byte[] byteArrayOriginal, int width, int height, int start, int end);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
-        public static extern byte FiltrAsm(byte[] byteArray, byte[] byteArrayOriginal, int width, int height, int start, int end);
+        public static extern void FiltrAsm(byte[] byteArray, byte[] byteArrayOriginal, int width, int height, int start, int end);
 
         private string imagePath;
         int processorCount;
@@ -23,10 +24,10 @@ namespace WindowsFormsApp2
         {
             InitializeComponent();
             processorCount = Environment.ProcessorCount;
-            for (int i = 0; i <= 6; i++) //maja byc raczej od 1-64 a nie tylko potegi 2
+            for (int i = 1; i <= 64; i++) //maja byc raczej od 1-64 a nie tylko potegi 2
             {
-                int value = (int)Math.Pow(2, i);
-                comboBox1.Items.Add(value);
+                //int value = i;// (int)Math.Pow(2, i);
+                comboBox1.Items.Add(i);
             }
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox1.SelectedItem = processorCount;
@@ -36,6 +37,10 @@ namespace WindowsFormsApp2
             comboBox2.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox2.SelectedIndex = 0;
 
+            label1.Text = "";
+
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -49,11 +54,8 @@ namespace WindowsFormsApp2
                     try
                     {
                         imagePath = openFileDialog.FileName;
-                        Image image = Image.FromFile(openFileDialog.FileName);
-
-                        pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+                        Image image = Image.FromFile(imagePath);
                         pictureBox1.Image = image;
-
                     }
                     catch (Exception ex)
                     {
@@ -65,78 +67,93 @@ namespace WindowsFormsApp2
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e) //TO DO: usunac nieuzywane rzeczy ( dodawanie naglowka)
         {
             if (string.IsNullOrEmpty(imagePath))
             {
                 MessageBox.Show("Nie wybrano obrazu.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             Bitmap imageBitmap = new Bitmap(imagePath);
             byte[] image = ImageToByteArray(pictureBox1.Image);
 
+            byte[] pixelData = new byte[image.Length - 54]; //input array
+            byte[] pixelDataOriginal = new byte[image.Length - 54]; //output array
+            Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);
 
-            //TODO podzielic na czesci dla watkow
-
-            byte[] pixelData = new byte[image.Length - 54];
-            byte[] pixelDataOriginal = new byte[image.Length - 54];
-            Array.Copy(image, 54, pixelData, 0, pixelData.Length);
-            Array.Copy(image, 54, pixelDataOriginal, 0, pixelData.Length);// bez sensu kopiwoac mozna przekazac pusta TODO!
-
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
-            //Przekazywanie w formacie bgr
-            //TODO zmienic dodac osobne funkcje ladujace dynamiczne biblioteki
             int height = imageBitmap.Height;
             int width = imageBitmap.Width;
             int rowsPerThread = height / processorCount;
-            if (comboBox2.SelectedIndex == 0)
-            {
-                Parallel.For(0, processorCount , threadIndex => //TO DO: upewnic sie czy dobrze dzielone sa watki ( na razie dziala) ( czy sa wszytkie wiersze? i czy dla nieparzystych dobrze?)
-                {
-                    int startRow = threadIndex * rowsPerThread + 1;
-                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1; //pomijanie wyslania ostatniego wierszu( TO DO: zmienic w cpp)
+            int remainingRows = height % processorCount;
 
-                    FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow);
-                });
-                //FiltrCpp(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, 1, imageBitmap.Height); // do usuniecia
-            } else if(comboBox2.SelectedIndex == 1)
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            if (comboBox2.SelectedIndex == 0)
             {
                 Parallel.For(0, processorCount, threadIndex => //TO DO: upewnic sie czy dobrze dzielone sa watki ( na razie dziala) ( czy sa wszytkie wiersze? i czy dla nieparzystych dobrze?)
                 {
                     int startRow = threadIndex * rowsPerThread + 1;
-                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;//pomijanie wyslania ostatniego wierszu (TO DO: zmienic w asm, nie pomijac ostatniego)
+                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;//TO DO: tu jest jakos dzienie to zrobione trzeba zmienic tutaj asm i cpp
+                    FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow);
+                });
+            }
+            else if (comboBox2.SelectedIndex == 1)
+            {
+                Parallel.For(0, processorCount, threadIndex => //TO DO: upewnic sie czy dobrze dzielone sa watki ( na razie dziala) ( czy sa wszytkie wiersze? i czy dla nieparzystych dobrze?)
+                {
+                    int startRow = threadIndex * rowsPerThread + 1;
+                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
 
                     FiltrAsm(pixelData, pixelDataOriginal, width, height, startRow, endRow);
                 });
-                //Task task1 = Task.Run(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, 0, height / 3));
-                //Task task2 = Task.Run(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, height / 3, height/3 *2));
-                //Task task3 = Task.Run(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, height / 3 * 2, height - 1));
-
-                // Wait for both tasks to complete
-                //Task.WaitAll(task1, task2, task3);
-                //FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, 0 , imageBitmap.Height/2 ); // przy duzych plikach i ponownym uruchomieniu asm rzuca wyjatek sprawdzic dlaczeg TO DO
-                //FiltrAsm(pixelData, pixelDataOriginal, imageBitmap.Width, imageBitmap.Height, imageBitmap.Height / 2 , imageBitmap.Height-1);
             }
-    
+
+            // tym sposobem gdy jest wiecej niz 8 watkow program dziala wolniej
+            //if (comboBox2.SelectedIndex == 0)
+            //{
+            //    Thread[] threads = new Thread[processorCount];
+            //    for (int threadIndex = 0; threadIndex < processorCount; threadIndex++)
+            //    {
+            //        int startRow = threadIndex * rowsPerThread + 1;
+            //        int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
+
+            //        threads[threadIndex] = new Thread(() => FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow));
+            //        threads[threadIndex].Start();
+            //    }
+            //    foreach (var thread in threads)
+            //    {
+            //        thread.Join();
+            //    }
+            //}
+            //else if (comboBox2.SelectedIndex == 1)
+            //{
+            //    Thread[] threads = new Thread[processorCount];
+            //    for (int threadIndex = 0; threadIndex < processorCount; threadIndex++)
+            //    {
+            //        int startRow = threadIndex * rowsPerThread + 1;
+            //        int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
+
+            //        threads[threadIndex] = new Thread(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, startRow, endRow));
+            //        threads[threadIndex].Start();
+            //    }
+            //    foreach (var thread in threads)
+            //    {
+            //        thread.Join();
+            //    }
+            //}
             stopwatch.Stop();
-            MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
 
-            //byte[] modifiedImageWithHeader = AddBmpHeader(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height); niepotrzebne do wyswietlania
-
+            label1.Text = "Czas: " + stopwatch.ElapsedMilliseconds.ToString() + " ms";
+            //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
 
             Bitmap modifiedBitmap = ConstructBitmap(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
-
-            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY); //pbrot bo zdjecie z jakiegos powodu wychodzi do gory nogami
-            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
+            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY); //obrot bo zdjecie z jakiegos powodu wychodzi do gory nogami
             pictureBox2.Image = modifiedBitmap;
+            modifiedBitmap.Save(imagePath + "_Prewitt.bmp", ImageFormat.Bmp);
         }
-
-
-
         private Bitmap ConstructBitmap(byte[] pixelData, int width, int height)
         {
-
             Bitmap modifiedBitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             Rectangle rect = new Rectangle(0, 0, modifiedBitmap.Width, modifiedBitmap.Height);
@@ -144,12 +161,9 @@ namespace WindowsFormsApp2
                 modifiedBitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
                 modifiedBitmap.PixelFormat);
 
-
             IntPtr ptr = bmpData.Scan0;
 
-
-            System.Runtime.InteropServices.Marshal.Copy(pixelData, 0, ptr, pixelData.Length); //- 54);
-
+            System.Runtime.InteropServices.Marshal.Copy(pixelData, 0, ptr, pixelData.Length);
 
             modifiedBitmap.UnlockBits(bmpData);
 
@@ -163,69 +177,6 @@ namespace WindowsFormsApp2
                 return stream.ToArray();
             }
         }
-
-        //private byte[] AddBmpHeader(byte[] pixelData, int width, int height)
-        //{
-
-        //    int imageSize = pixelData.Length;
-
-
-        //    int headerSize = 54;
-
-        //    int fileSize = headerSize + imageSize;
-
-        //    byte[] header = new byte[headerSize];
-
-        //    header[0] = (byte)'B';
-        //    header[1] = (byte)'M';
-
-        //    // Rozmiar pliku
-        //    header[2] = (byte)(fileSize);
-        //    header[3] = (byte)(fileSize >> 8);
-        //    header[4] = (byte)(fileSize >> 16);
-        //    header[5] = (byte)(fileSize >> 24);
-
-        //    // Offset danych pikseli w pliku
-        //    header[10] = 54; // offset danych pikseli zaczyna się od bajtu 54
-
-        //    // Rozmiar nagłówka informacyjnego
-        //    header[14] = 40; // Rozmiar nagłówka informacyjnego to 40 bajtów
-
-        //    // Szerokość obrazu
-        //    header[18] = (byte)width;
-        //    header[19] = (byte)(width >> 8);
-        //    header[20] = (byte)(width >> 16);
-        //    header[21] = (byte)(width >> 24);
-
-        //    // Wysokość obrazu
-        //    header[22] = (byte)height;
-        //    header[23] = (byte)(height >> 8);
-        //    header[24] = (byte)(height >> 16);
-        //    header[25] = (byte)(height >> 24);
-
-        //    // Liczba płaszczyzn
-        //    header[26] = 1;
-
-        //    // Bitów na piksel (24 bitów na piksel)
-        //    header[28] = 24;
-
-        //    // Kompresja (bez kompresji)
-        //    header[30] = 0;
-
-        //    // Rozmiar obrazu (0 dla niekompresowanego BMP)
-        //    header[34] = (byte)imageSize;
-        //    header[35] = (byte)(imageSize >> 8);
-        //    header[36] = (byte)(imageSize >> 16);
-        //    header[37] = (byte)(imageSize >> 24);
-
-        //    // Skonkatenuj nagłówek z danymi pikseli
-        //    byte[] result = new byte[fileSize];
-        //    Array.Copy(header, result, headerSize);
-        //    Array.Copy(pixelData, 0, result, headerSize, imageSize);
-
-        //    return result;
-        //}
-
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (int.TryParse(comboBox1.SelectedItem.ToString(), out int selectedValue))
@@ -235,6 +186,11 @@ namespace WindowsFormsApp2
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
         {
 
         }

@@ -20,7 +20,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 }
 extern "C" __declspec(dllexport) void FiltrCpp(unsigned char* resultArray, unsigned char* byteArray, int width, int height, int start, int end)
 {
-
     for (int y = start; y < end; ++y) {
         for (int x = 1; x < width - 1; ++x) {
             for (int c = 0; c < 3; ++c) {
