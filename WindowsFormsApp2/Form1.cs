@@ -67,7 +67,7 @@ namespace WindowsFormsApp2
             }
         }
 
-        private void button2_Click(object sender, EventArgs e) //TO DO: usunac nieuzywane rzeczy ( dodawanie naglowka)
+        private void button2_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(imagePath))
             {
@@ -84,32 +84,32 @@ namespace WindowsFormsApp2
 
             int height = imageBitmap.Height;
             int width = imageBitmap.Width;
-            int rowsPerThread = height / processorCount;
-            int remainingRows = height % processorCount;
+            int rowsPerThread = (height - 2) / processorCount;
+            int remainingRows = (height - 2) % processorCount;
 
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             if (comboBox2.SelectedIndex == 0)
             {
-                Parallel.For(0, processorCount, threadIndex => //TO DO: upewnic sie czy dobrze dzielone sa watki ( na razie dziala) ( czy sa wszytkie wiersze? i czy dla nieparzystych dobrze?)
+                Parallel.For(0, processorCount, threadIndex => 
                 {
-                    int startRow = threadIndex * rowsPerThread + 1;
-                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;//TO DO: tu jest jakos dzienie to zrobione trzeba zmienic tutaj asm i cpp
+                    int startRow = threadIndex * rowsPerThread + 1 + (threadIndex == 0 ? 0 : (threadIndex - 1 < remainingRows ? 1 : 0));
+                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1 + (threadIndex < remainingRows ? 1 : 0);
                     FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow);
                 });
             }
             else if (comboBox2.SelectedIndex == 1)
             {
-                Parallel.For(0, processorCount, threadIndex => //TO DO: upewnic sie czy dobrze dzielone sa watki ( na razie dziala) ( czy sa wszytkie wiersze? i czy dla nieparzystych dobrze?)
+                Parallel.For(0, processorCount, threadIndex =>
                 {
-                    int startRow = threadIndex * rowsPerThread + 1;
-                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
+                    int startRow = threadIndex * rowsPerThread + 1 + (threadIndex == 0 ? 0 : (threadIndex - 1 < remainingRows ? 1 : 0));
+                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1 + (threadIndex < remainingRows ? 1 : 0);
 
                     FiltrAsm(pixelData, pixelDataOriginal, width, height, startRow, endRow);
                 });
             }
 
-            // tym sposobem gdy jest wiecej niz 8 watkow program dziala wolniej
+                // tym sposobem gdy jest wiecej niz 8 watkow program dziala wolniej
             //if (comboBox2.SelectedIndex == 0)
             //{
             //    Thread[] threads = new Thread[processorCount];
@@ -148,9 +148,9 @@ namespace WindowsFormsApp2
             //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
 
             Bitmap modifiedBitmap = ConstructBitmap(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
-            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY); //obrot bo zdjecie z jakiegos powodu wychodzi do gory nogami
+            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY); //obrot bo zdjecie z jakiegos powodu wychodzi do gory nogami ( cos zwiazane ze zmienianiem z bmp na byte[])
             pictureBox2.Image = modifiedBitmap;
-            modifiedBitmap.Save(imagePath + "_Prewitt.bmp", ImageFormat.Bmp);
+            modifiedBitmap.Save(imagePath.Substring(0, imagePath.Length - 4) + "_Prewitt.bmp", ImageFormat.Bmp);
         }
         private Bitmap ConstructBitmap(byte[] pixelData, int width, int height)
         {

@@ -7,9 +7,8 @@ applyPrewitt:
     ;   rdx - wskaŸnik na obraz wyjœciowy (GBR24)
     ;   r8  - szerokoœæ obrazu (width)
     ;   r9  - wysokoœæ obrazu (height)
-
-    mov eax, DWORD PTR[rsp + 40]
-    mov ebx, DWORD PTR[rsp + 48]
+    mov eax, DWORD PTR[rsp + 40] ; start
+    mov ebx, DWORD PTR[rsp + 48] ; end
 
     push r12
     push r13
@@ -24,15 +23,9 @@ applyPrewitt:
 
     mov r12, r8
     sub r12, 3 ; do porowniania zeby pominac ostatni kolumne 
-    mov r13, rbx ; ustawianie ostatniego przetwarzangego woerszu dla porownania na koncu petli
-    ;dec r13 ; -||- ostatni wiersz , dziala bez tego?? ( zmienic zby usuwac tylko ostatni ostatni, a nie w kazdym watku)
-
-    ;dla watkow
-    ;mov r13d, DWORD PTR[rsp + 48] ; wstawianie ostantniego przetwarzengo wierszu dla porownani w petli
-    ;do r11 przeniesc poczatkowy wiersz * r8 zeby zaczyna od dobrego mieejsca
+    mov r13, rbx ; ustawianie ostatniego przetwarzangego wierszu dla porownania na koncu petli
 
     xor r10, r10       ; R10 = iterator wierszy (i)
-    ;inc r10 ; zeby pominac 1 wiersz
     mov r10, rax ; ustawnie iteratora wierszy na 1 wiersz do przetowrzenia
    
     imul rax, r8; poczatkowy wiersz * szerokosc
@@ -43,15 +36,11 @@ outer_loop:
     mov     rdi, rcx       ; RDI = wskaŸnik na obraz wejœciowy (przywrócenie pocz¹tkowego adresu)
     mov     rsi, rdx       ; RSI = wskaŸnik na obraz wyjœciowy (przywrócenie pocz¹tkowego adresu)
 
-    ;xor rax, rax
-    ;mov eax, DWORD PTR[rsp + 40]
-    ;mul r8
-    ;mov r11, rax
     xor r11, r11       ; R11 = iterator kolumn (j)
     add r11, 3 ; zeby pominac 1 kolumne
 
 inner_loop:
-    ;Tutaj ma byc docelowo filtr prwitta
+    ;Tutaj ma byc docelowo filtr prewitta
     
      xor r15, r15
     xorps xmm0, xmm0 
@@ -161,7 +150,7 @@ inner_loop:
     phaddw xmm6, xmm6
     phaddw xmm6, xmm6
 
-    ; To raczej da sie zoptymalziwac jescze
+    ; To raczej da sie zoptymalziwac jeszcze
     ;Wyciaganie do xmm1 xmm0
     ;xmm1 ---   y123(2) - x123(2) - y123(1) - x123(1)
     ;xmm0 ---   y456(2) - x456(2) - y456(1) - x456(1)
@@ -189,7 +178,7 @@ inner_loop:
     ;gradX (1) - gradY (1) - gradX (2) - gradY (2)
     ;Dodac sprawdzenie czy wartosc nie przekrqacz 255??? TODO
 
-     ;Tutah kwadrat, dodwaniae, zmiana na double, pierwiastkowanie, zmiana na int (chyba niepotrzebnie xmm, mozna zmiejszyc)
+     ;Tutah kwadrat, dodwaniae, zmiana na double, pierwiastkowanie, zmiana na int 
     pmulld xmm1, xmm1   ; podnosimy wartoœci do kwadratu
     phaddd xmm1, xmm1   ; dodajemy wartoœci
     cvtdq2pd    xmm1, xmm1 ; konwertujemy na dp
@@ -202,7 +191,7 @@ inner_loop:
 
     ; Inkrementacja iteratora kolumn (j)
     add r11, 2 ; Dodanie 2 bo w kazdej petli obliczmy 2 wartosci
-    ;inc rsi wtedy nie bedzie trzeba dodawac r11 przed kazdym adresowaniem 
+    ;inc rsi wtedy nie bedzie trzeba dodawac r11 przed kazdym adresowaniem (TO DO)
     cmp r11, r12        ; sprawdzanie czy koniec wiersza (przedostatnia kolumna w wierszu)
     jl inner_loop     ; 
 
@@ -212,7 +201,7 @@ inner_loop:
 
     ; Inkrementacja iteratora wierszy (i)
     inc     r10
-    cmp     r10, r13        ; Sprawdzanie czy przedostatni wiersz koniec obrazu
+    cmp     r10, r13        ; Sprawdzanie czy ostatni wiersz obrazu
     jl      outer_loop     ; 
 
     ; Koniec
