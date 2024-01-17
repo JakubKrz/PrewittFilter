@@ -13,7 +13,7 @@ namespace WindowsFormsApp2
 {
     public partial class Form1 : Form
     {
-        [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")] //TO DO: zaldowywac jakos inaczej to
+        [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\Prewitt.dll")]
         public static extern void FiltrCpp(byte[] byteArray, byte[] byteArrayOriginal, int width, int height, int start, int end);
         [DllImport("C:\\Users\\krzyw\\Source\\Repos\\PrewittFilter\\x64\\Debug\\PrewittAsm.dll")]
         public static extern void FiltrAsm(byte[] byteArray, byte[] byteArrayOriginal, int width, int height, int start, int end);
@@ -24,7 +24,7 @@ namespace WindowsFormsApp2
         {
             InitializeComponent();
             processorCount = Environment.ProcessorCount;
-            for (int i = 1; i <= 64; i++) //maja byc raczej od 1-64 a nie tylko potegi 2
+            for (int i = 1; i <= 64; i++)
             {
                 //int value = i;// (int)Math.Pow(2, i);
                 comboBox1.Items.Add(i);
@@ -67,13 +67,16 @@ namespace WindowsFormsApp2
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private async void button2_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(imagePath))
             {
                 MessageBox.Show("Nie wybrano obrazu.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            button2.Enabled = false;
+            int procCount = processorCount;
+            int lib = comboBox2.SelectedIndex;
 
             Bitmap imageBitmap = new Bitmap(imagePath);
             byte[] image = ImageToByteArray(pictureBox1.Image);
@@ -84,66 +87,32 @@ namespace WindowsFormsApp2
 
             int height = imageBitmap.Height;
             int width = imageBitmap.Width;
-            int rowsPerThread = (height - 2) / processorCount;
-            int remainingRows = (height - 2) % processorCount;
+            int rowsPerThread = (height - 2) / procCount;
+            int remainingRows = (height - 2) % procCount;
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-
-            if (comboBox2.SelectedIndex == 0)
+            await Task.Run(() =>
             {
-                Parallel.For(0, processorCount, threadIndex => 
+                if (lib == 0) //cpp
                 {
-                    int startRow = threadIndex * rowsPerThread + 1 + (threadIndex == 0 ? 0 : (threadIndex - 1 < remainingRows ? 1 : 0));
-                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1 + (threadIndex < remainingRows ? 1 : 0);
-                    FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow);
-                });
-            }
-            else if (comboBox2.SelectedIndex == 1)
-            {
-                Parallel.For(0, processorCount, threadIndex =>
+                    Parallel.For(0, procCount, threadIndex =>
+                    {
+                        int startRow = threadIndex * rowsPerThread + 1 + (threadIndex == 0 ? 0 : (threadIndex - 1 < remainingRows ? 1 : 0));
+                        int endRow = (threadIndex == procCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1 + (threadIndex < remainingRows ? 1 : 0);
+                        FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow);
+                    });
+                }
+                else if (lib == 1) // asm
                 {
-                    int startRow = threadIndex * rowsPerThread + 1 + (threadIndex == 0 ? 0 : (threadIndex - 1 < remainingRows ? 1 : 0));
-                    int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1 + (threadIndex < remainingRows ? 1 : 0);
-
-                    FiltrAsm(pixelData, pixelDataOriginal, width, height, startRow, endRow);
-                });
-            }
-
-                // tym sposobem gdy jest wiecej niz 8 watkow program dziala wolniej
-            //if (comboBox2.SelectedIndex == 0)
-            //{
-            //    Thread[] threads = new Thread[processorCount];
-            //    for (int threadIndex = 0; threadIndex < processorCount; threadIndex++)
-            //    {
-            //        int startRow = threadIndex * rowsPerThread + 1;
-            //        int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
-
-            //        threads[threadIndex] = new Thread(() => FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow));
-            //        threads[threadIndex].Start();
-            //    }
-            //    foreach (var thread in threads)
-            //    {
-            //        thread.Join();
-            //    }
-            //}
-            //else if (comboBox2.SelectedIndex == 1)
-            //{
-            //    Thread[] threads = new Thread[processorCount];
-            //    for (int threadIndex = 0; threadIndex < processorCount; threadIndex++)
-            //    {
-            //        int startRow = threadIndex * rowsPerThread + 1;
-            //        int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
-
-            //        threads[threadIndex] = new Thread(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, startRow, endRow));
-            //        threads[threadIndex].Start();
-            //    }
-            //    foreach (var thread in threads)
-            //    {
-            //        thread.Join();
-            //    }
-            //}
+                    Parallel.For(0, procCount, threadIndex =>
+                    {
+                        int startRow = threadIndex * rowsPerThread + 1 + (threadIndex == 0 ? 0 : (threadIndex - 1 < remainingRows ? 1 : 0));
+                        int endRow = (threadIndex == procCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1 + (threadIndex < remainingRows ? 1 : 0);
+                        FiltrAsm(pixelData, pixelDataOriginal, width, height, startRow, endRow);
+                    });
+                }
+            });
             stopwatch.Stop();
-
             label1.Text = "Czas: " + stopwatch.ElapsedMilliseconds.ToString() + " ms";
             //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString() + "ms", "Czas w ms");
 
@@ -151,6 +120,7 @@ namespace WindowsFormsApp2
             modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY); //obrot bo zdjecie z jakiegos powodu wychodzi do gory nogami ( cos zwiazane ze zmienianiem z bmp na byte[])
             pictureBox2.Image = modifiedBitmap;
             modifiedBitmap.Save(imagePath.Substring(0, imagePath.Length - 4) + "_Prewitt.bmp", ImageFormat.Bmp);
+            button2.Enabled = true;
         }
         private Bitmap ConstructBitmap(byte[] pixelData, int width, int height)
         {
@@ -196,3 +166,36 @@ namespace WindowsFormsApp2
         }
     }
 }
+// //tym sposobem gdy jest wiecej niz 8 watkow program dziala wolniej
+//if (comboBox2.SelectedIndex == 0)
+//{
+//    Thread[] threads = new Thread[processorCount];
+//    for (int threadIndex = 0; threadIndex < processorCount; threadIndex++)
+//    {
+//        int startRow = threadIndex * rowsPerThread + 1;
+//        int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
+
+//        threads[threadIndex] = new Thread(() => FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow));
+//        threads[threadIndex].Start();
+//    }
+//    foreach (var thread in threads)
+//    {
+//        thread.Join();
+//    }
+//}
+//else if (comboBox2.SelectedIndex == 1)
+//{
+//    Thread[] threads = new Thread[processorCount];
+//    for (int threadIndex = 0; threadIndex < processorCount; threadIndex++)
+//    {
+//        int startRow = threadIndex * rowsPerThread + 1;
+//        int endRow = (threadIndex == processorCount - 1) ? imageBitmap.Height - 1 : (threadIndex + 1) * rowsPerThread + 1;
+
+//        threads[threadIndex] = new Thread(() => FiltrAsm(pixelData, pixelDataOriginal, width, height, startRow, endRow));
+//        threads[threadIndex].Start();
+//    }
+//    foreach (var thread in threads)
+//    {
+//        thread.Join();
+//    }
+//}
