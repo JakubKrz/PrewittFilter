@@ -40,9 +40,8 @@ outer_loop:
     add r11, 3 ; zeby pominac 1 kolumne
 
 inner_loop:
-    ;Tutaj ma byc docelowo filtr prewitta
     
-     xor r15, r15
+    xor r15, r15
     xorps xmm0, xmm0 
     xorps xmm1, xmm1
     xorps xmm3, xmm3
@@ -150,7 +149,6 @@ inner_loop:
     phaddw xmm6, xmm6
     phaddw xmm6, xmm6
 
-    ; To raczej da sie zoptymalziwac jeszcze
     ;Wyciaganie do xmm1 xmm0
     ;xmm1 ---   y123(2) - x123(2) - y123(1) - x123(1)
     ;xmm0 ---   y456(2) - x456(2) - y456(1) - x456(1)
@@ -176,8 +174,6 @@ inner_loop:
     subps xmm1, xmm0 ;operacja x123-x456, y123-y456 na (1) i (2)
     
     ;gradX (1) - gradY (1) - gradX (2) - gradY (2)
-    ;Dodac sprawdzenie czy wartosc nie przekrqacz 255??? TODO
-
      ;Tutah kwadrat, dodwaniae, zmiana na double, pierwiastkowanie, zmiana na int 
     pmulld xmm1, xmm1   ; podnosimy wartoœci do kwadratu
     phaddd xmm1, xmm1   ; dodajemy wartoœci
