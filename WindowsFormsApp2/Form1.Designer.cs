@@ -46,6 +46,7 @@
             this.pictureBox1.Size = new System.Drawing.Size(704, 512);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // button1
             // 
@@ -55,7 +56,7 @@
             this.button1.TabIndex = 1;
             this.button1.Text = "Choose picture";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.ImageSelectionButtonClicked);
             // 
             // button2
             // 
@@ -65,7 +66,7 @@
             this.button2.TabIndex = 2;
             this.button2.Text = "start";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.ProcessImageButtonClicked);
             // 
             // pictureBox2
             // 
@@ -102,7 +103,7 @@
             this.label1.TabIndex = 6;
             this.label1.Text = "label1";
             // 
-            // Czas
+            // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -114,7 +115,7 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.pictureBox1);
-            this.Name = "Czas";
+            this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

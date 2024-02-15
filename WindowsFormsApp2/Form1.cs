@@ -1,11 +1,12 @@
 ﻿/////////////////////////////////////////////
 //
-// Temat:			Filtr Prewitta
-// Rok:				2023/2024
-// Semestr:			5
-// Autor:			Jakub Krzywoń
+// Topic:            Edge Detection using Prewitt Operator
+// Year:             2023/2024
+// Semester:         5
+// Author:           Jakub Krzywoń
 // 
 //////////////////////////////////////////////
+
 
 using System;
 using System.Diagnostics;
@@ -32,14 +33,21 @@ namespace WindowsFormsApp2
         public Form1()
         {
             InitializeComponent();
+
             processorCount = Environment.ProcessorCount;
-            for (int i = 1; i <= 64; i++)
+            for (int i = 0; i <= 6; i++)
             {
-                int value = (int)Math.Pow(2, i);
-                comboBox1.Items.Add(i);
+                comboBox1.Items.Add((int)Math.Pow(2,i));
             }
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBox1.SelectedItem = processorCount;
+            if (comboBox1.Items.Contains(processorCount))
+            {
+                comboBox1.SelectedIndex = comboBox1.Items.IndexOf(processorCount);
+            } else
+            {
+                comboBox1.Items.Add(processorCount);
+                comboBox1.SelectedItem = processorCount;
+            }
 
             comboBox2.Items.Add("C++");
             comboBox2.Items.Add("ASM");
@@ -52,7 +60,7 @@ namespace WindowsFormsApp2
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void ImageSelectionButtonClicked(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -68,7 +76,7 @@ namespace WindowsFormsApp2
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Błąd wczytywania obrazu: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Image loading error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
 
                 }
@@ -76,16 +84,17 @@ namespace WindowsFormsApp2
             }
         }
 
-        private async void button2_Click(object sender, EventArgs e)
+        private async void ProcessImageButtonClicked(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(imagePath))
             {
-                MessageBox.Show("Nie wybrano obrazu.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Please select an image", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             button2.Enabled = false;
             int procCount = processorCount;
-            int lib = comboBox2.SelectedIndex;
+            int libraryIndex = comboBox2.SelectedIndex;
 
             Bitmap imageBitmap = new Bitmap(imagePath);
             byte[] image = ImageToByteArray(pictureBox1.Image);
@@ -102,7 +111,7 @@ namespace WindowsFormsApp2
             Stopwatch stopwatch = Stopwatch.StartNew();
             await Task.Run(() =>
             {
-                if (lib == 0) //cpp
+                if (libraryIndex == 0) //c++
                 {
                     Parallel.For(0, procCount, threadIndex =>
                     {
@@ -111,7 +120,7 @@ namespace WindowsFormsApp2
                         FiltrCpp(pixelData, pixelDataOriginal, width, height, startRow, endRow);
                     });
                 }
-                else if (lib == 1) // asm
+                else if (libraryIndex == 1) // asm
                 {
                     Parallel.For(0, procCount, threadIndex =>
                     {
@@ -125,11 +134,13 @@ namespace WindowsFormsApp2
             label1.Text = "Czas: " + stopwatch.ElapsedMilliseconds.ToString() + " ms";
 
             Bitmap modifiedBitmap = ConstructBitmap(pixelData, pictureBox1.Image.Width, pictureBox1.Image.Height);
-            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY); //obrot ponieważ wychodzi do gory nogami
+            modifiedBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             pictureBox2.Image = modifiedBitmap;
+
             modifiedBitmap.Save(imagePath.Substring(0, imagePath.Length - 4) + "_Prewitt.bmp", ImageFormat.Bmp);
             button2.Enabled = true;
         }
+
         private Bitmap ConstructBitmap(byte[] pixelData, int width, int height)
         {
             Bitmap modifiedBitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
@@ -147,6 +158,7 @@ namespace WindowsFormsApp2
 
             return modifiedBitmap;
         }
+
         private byte[] ImageToByteArray(Image image)
         {
             using (MemoryStream stream = new MemoryStream())
@@ -169,6 +181,11 @@ namespace WindowsFormsApp2
         }
 
         private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
         {
 
         }

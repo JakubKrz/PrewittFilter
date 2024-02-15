@@ -40,7 +40,7 @@ extern "C" __declspec(dllexport) void FiltrCpp(unsigned char* resultArray, unsig
                     + byteArray[((y + 1) * width + (x + 1)) * 3 + c];
 
                 int gradient = static_cast<int>(std::sqrt(horizontalSum * horizontalSum + verticalSum * verticalSum)); 
-                        
+
                 resultArray[(y * width + x) * 3 + c] =  static_cast<unsigned char>(gradient);
             }
         }
