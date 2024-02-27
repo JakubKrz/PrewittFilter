@@ -13,6 +13,7 @@ The program allows the user to load an image and then perform edge detection usi
 **Threads Selection Range:** 1-64
 
 **Screenshots of the Application in Action:**
+
 ![image](https://github.com/JakubKrz/PrewittFilter/assets/91898433/112338b5-a6b4-4e8c-b145-db27de144977)
 ![image](https://github.com/JakubKrz/PrewittFilter/assets/91898433/5d2adedb-e153-4d15-8f33-5afae30912d3)
 
@@ -28,5 +29,6 @@ The program allows the user to load an image and then perform edge detection usi
 | 32                | 322                     | 146                     |
 | 64                | 336                      | 142                     |
 
+On average, the assembly library was approximately 2.3 times faster than the C++ library
 - Processor: Intel i5-11 (8 logical cores)
 - Image Size: 70 316 KB
