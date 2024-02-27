@@ -18,7 +18,7 @@ The program allows the user to load an image and then perform edge detection usi
 ![image](https://github.com/JakubKrz/PrewittFilter/assets/91898433/5d2adedb-e153-4d15-8f33-5afae30912d3)
 
 ### Comparison of Execution Times
-
+The tests were conducted in release mode with code optimization /O2 for the C++ library. Each test was repeated 5 times, excluding the first measurement.
 | Number of Threads | C++ Library Time (ms) | ASM Library Time (ms) |
 |-------------------|------------------------|-----------------------|
 | 1                 | 1221                    | 510                    |
